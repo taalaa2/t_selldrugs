@@ -51,78 +51,85 @@ for i,v in ipairs(T.drugs) do
                     return
                 end
 
-                lib.requestAnimDict('anim@heists@humane_labs@finale@strip_club', 100)
-                TaskPlayAnim(data.entity, 'anim@heists@humane_labs@finale@strip_club', 'ped_b_celebrate_loop', 3.0, 3.0, -1, 19, 0, false, false, false)
-
-                FreezeEntityPosition(data.entity, true)
-
-                local drugsMenu = lib.inputDialog(v.label, {
-                    { type = 'number', label = T.strings.howManySell, icon = v.icon, required = true, max = T.max}
-                })
-
-                if drugsMenu then
-                    Dispatch()
-                    local selling = lib.progressCircle({
-                        label = T.strings.sellingDrug,
-                        duration = T.sellTime * 1000,
-                        position = 'bottom',
-                        allowCuffed = false,
-                        allowFalling = false,
-                        canCancel = true,
-                        allowRagdoll = false,
-                        disable = {
-                            car = true,
-                            move = true,
-                        },
-                        anim = {
-                            dict = 'anim@heists@humane_labs@finale@strip_club',
-                            clip = 'ped_b_celebrate_loop',
-                            flag = 1,
-                        }
+                if not IsEntityDead(data.entity) then
+                    lib.requestAnimDict('anim@heists@humane_labs@finale@strip_club', 100)
+                    TaskPlayAnim(data.entity, 'anim@heists@humane_labs@finale@strip_club', 'ped_b_celebrate_loop', 3.0, 3.0, -1, 19, 0, false, false, false)
+    
+                    FreezeEntityPosition(data.entity, true)
+    
+                    local drugsMenu = lib.inputDialog(v.label, {
+                        { type = 'number', label = T.strings.howManySell, icon = v.icon, required = true, max = T.max}
                     })
-
-                    if selling then
-                        local pedoffer = math.random(v.min, v.max)
-
-                        local offer = lib.alertDialog({
-                            header = v.label,
-                            content = T.strings.pedoffer.. ' $' ..pedoffer,
-                            centered = true,
-                            cancel = true,
-                            labels = {
-                                confirm = T.strings.sell,
-                                cancel = T.strings.dontSell,
+    
+                    if drugsMenu then
+                        Dispatch()
+                        local selling = lib.progressCircle({
+                            label = T.strings.sellingDrug,
+                            duration = T.sellTime * 1000,
+                            position = 'bottom',
+                            allowCuffed = false,
+                            allowFalling = false,
+                            canCancel = true,
+                            allowRagdoll = false,
+                            disable = {
+                                car = true,
+                                move = true,
+                            },
+                            anim = {
+                                dict = 'anim@heists@humane_labs@finale@strip_club',
+                                clip = 'ped_b_celebrate_loop',
+                                flag = 1,
                             }
                         })
-
-                        if offer == 'confirm' then
-                            lib.requestAnimDict('mp_common', 100)
-                            TaskPlayAnim(data.entity, 'mp_common', 'givetake1_a', 3.0, 3.0, -1, 19, 0, false, false, false)
     
-                            -- you
-                            lib.requestAnimDict('mp_common', 100)
-                            TaskPlayAnim(cache.ped, 'mp_common', 'givetake1_a', 3.0, 3.0, -1, 19, 0, false, false, false)
+                        if selling then
+                            local pedoffer = math.random(v.min, v.max)
     
-                            Citizen.Wait(2000)
+                            local offer = lib.alertDialog({
+                                header = v.label,
+                                content = T.strings.pedoffer.. ' $' ..pedoffer,
+                                centered = true,
+                                cancel = true,
+                                labels = {
+                                    confirm = T.strings.sell,
+                                    cancel = T.strings.dontSell,
+                                }
+                            })
     
-                            FreezeEntityPosition(data.entity, false)
-                            ClearPedTasks(data.entity)
-                            ClearPedTasks(cache.ped)
-    
-                            -- success
-                            
-                            local amount = drugsMenu[1]
-                            local item = v.item
-                            local label = v.item
+                            if offer == 'confirm' then
+                                lib.requestAnimDict('mp_common', 100)
+                                TaskPlayAnim(data.entity, 'mp_common', 'givetake1_a', 3.0, 3.0, -1, 19, 0, false, false, false)
         
-                            lib.callback.await('t_selldrugs:SellDrugs', source, amount, item, pedoffer, label)
+                                -- you
+                                lib.requestAnimDict('mp_common', 100)
+                                TaskPlayAnim(cache.ped, 'mp_common', 'givetake1_a', 3.0, 3.0, -1, 19, 0, false, false, false)
+        
+                                Citizen.Wait(2000)
+        
+                                FreezeEntityPosition(data.entity, false)
+                                ClearPedTasks(data.entity)
+                                ClearPedTasks(cache.ped)
+        
+                                -- success
+                                
+                                local amount = drugsMenu[1]
+                                local item = v.item
+                                local label = v.item
+            
+                                lib.callback.await('t_selldrugs:SellDrugs', source, amount, item, pedoffer, label)
+                            else
+                                FreezeEntityPosition(data.entity, false)
+                                ClearPedTasks(data.entity)
+                            end
+                        else
+                            notify(T.strings.canceled, 'error')
                         end
                     else
-                        notify(T.strings.canceled, 'error')
+                        ClearPedTasks(data.entity)
+                        FreezeEntityPosition(data.entity, false)
                     end
                 else
-                    ClearPedTasks(data.entity)
-                    FreezeEntityPosition(data.entity, false)
+                    notify(T.strings.YouCantSellDeath, 'error')
                 end
             end
         }
