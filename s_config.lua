@@ -44,7 +44,9 @@ T = {
         pedoffer = 'I offer drugs',
         sell = 'Sell',
         dontSell = 'Dont Sell',
-        YouSold = 'You sold x'
+        YouSold = 'You sold x',
+        -- 13.3 update
+        YouCantSellDeath = 'You can´t sell to a dead person'
     },
     logs = {
         enable = false, -- true / false
